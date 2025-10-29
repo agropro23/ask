@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# Set your Groq API key as an environment variable in Render
+# Set your Groq API key in Render’s environment variables
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 @app.route("/ask", methods=["POST"])
@@ -18,9 +18,9 @@ def ask():
     }
 
     payload = {
-        "model": "gemma2-9b-it",  # Gemini-style model on Groq
+        "model": "gemma2-9b-it",  # Groq's Gemini-style model
         "messages": [
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": "You are a helpful and concise assistant."},
             {"role": "user", "content": prompt}
         ]
     }
@@ -34,9 +34,7 @@ def ask():
     if response.status_code != 200:
         return jsonify({"error": response.text}), response.status_code
 
-    result = response.json()
-    message = result["choices"][0]["message"]["content"]
-
+    message = response.json()["choices"][0]["message"]["content"]
     return jsonify({"response": message})
 
 if __name__ == "__main__":
