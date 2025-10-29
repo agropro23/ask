@@ -19,7 +19,7 @@ def ask():
         }
 
         payload = {
-            "model": "gemma2-9b-it",  # Gemini-style model on Groq
+            "model": "llama-3.3-70b-versatile",  # Gemini-style model on Groq
             "messages": [
                 {"role": "system", "content": "You are a helpful programming assistant."},
                 {"role": "user", "content": prompt}
