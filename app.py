@@ -1,45 +1,49 @@
 from flask import Flask, request, jsonify
 import requests
-import os
 
 app = Flask(__name__)
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.json or {}
     prompt = data.get("prompt", "")
-    api_key = data.get("api_key", "")
+    user_api_key = data.get("api_key", "").strip()
 
-    # Optional: simple API key check (or remove this if not needed)
-    if api_key and api_key != "your_local_dummy_key":
-        return jsonify({"response": "Invalid API key."}), 403
+    if not user_api_key:
+        return jsonify({"response": "Error: No API key provided."}), 400
 
     try:
         headers = {
-            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Authorization": f"Bearer {user_api_key}",
             "Content-Type": "application/json",
         }
+
         payload = {
-            "model": "gemma2-9b-it",
+            "model": "gemma2-9b-it",  # Gemini-style model on Groq
             "messages": [
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": "You are a helpful programming assistant."},
                 {"role": "user", "content": prompt}
             ]
         }
 
-        r = requests.post(
+        groq_response = requests.post(
             "https://api.groq.com/openai/v1/chat/completions",
             headers=headers,
             json=payload
         )
 
-        if r.status_code != 200:
-            return jsonify({"response": f"Groq API error: {r.text}"}), 500
+        # Handle Groq errors gracefully
+        if groq_response.status_code != 200:
+            return jsonify({
+                "response": f"Groq API error ({groq_response.status_code}): {groq_response.text}"
+            }), groq_response.status_code
 
-        result = r.json()
+        result = groq_response.json()
         message = result["choices"][0]["message"]["content"]
         return jsonify({"response": message})
 
     except Exception as e:
-        return jsonify({"response": f"Server error: {e}"})
+        return jsonify({"response": f"Server error: {e}"}), 500
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
