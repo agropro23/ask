@@ -64,7 +64,7 @@ def ask():
 
     try:
         # Google Gemini endpoint
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
         headers = {
             "Content-Type": "application/json"
